@@ -5,6 +5,11 @@
 > de mon travail. Les données ci-dessous sont **entièrement fictives** —
 > aucune donnée réelle de prospect, de client ou d'entreprise n'est incluse.
 
+<p align="center">
+  <img src="docs/screenshot-dark.png" alt="Cockpit SDR — thème sombre" width="49%">
+  <img src="docs/screenshot-light.png" alt="Cockpit SDR — thème clair" width="49%">
+</p>
+
 ## Le problème
 
 Une équipe de SDR travaille dans HubSpot toute la journée, mais HubSpot ne
@@ -110,6 +115,15 @@ deux fois), les relances en retard et les cas à qualifier manuellement.
 Chaque ligne expose un export CSV pour le power dialer, avec les numéros
 normalisés en E.164 et dédupliqués.
 
+**NRP** signifie *Ne Répond Pas* : le lead a été appelé mais n'a pas décroché
+ou n'a donné aucune suite. Le chiffre est le nombre de tentatives déjà
+effectuées — NRP0 est un lead jamais encore relancé après le premier appel
+manqué, NRP1 a été rappelé une fois sans réponse, et ainsi de suite jusqu'à
+NRP7. Chaque tentative supplémentaire déplace le lead à l'étape suivante,
+ce qui donne à l'équipe une vue immédiate de l'effort de relance déjà
+investi sur chaque contact et de ceux qui approchent du seuil où l'on
+arrête de rappeler.
+
 ### Contexte des leads
 
 D'où vient chaque lead avant de décrocher : dernière campagne cliquée,
@@ -134,3 +148,8 @@ significatif.
 
 La logique métier (règles de priorisation, normalisation de données,
 intégrations) est inchangée : c'est elle que ce projet a pour but de montrer.
+
+Les clés d'API (HubSpot, Allo, Minari, GitHub) ne sont jamais lues que
+depuis des variables d'environnement côté serveur (`process.env.*` dans
+`api/*.js` et `build_data.py`) — aucune n'a jamais été écrite en dur dans le
+code, à aucun moment de l'historique Git de ce dépôt.
