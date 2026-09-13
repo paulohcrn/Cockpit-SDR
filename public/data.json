@@ -1,0 +1,545 @@
+{
+  "genere_le": "2026-09-13T09:15:00+02:00",
+  "portal_id": "00000000",
+  "semaine": {
+    "debut": "2026-09-07",
+    "fin": "2026-09-13"
+  },
+  "mois": "2026-09",
+  "sdrs": [
+    {
+      "id": "1001",
+      "name": "Alex Martin",
+      "email": "alex.martin@example.com"
+    },
+    {
+      "id": "1002",
+      "name": "Sam Dubois",
+      "email": "sam.dubois@example.com"
+    }
+  ],
+  "sdrs_config": [
+    "alex.martin@example.com",
+    "sam.dubois@example.com",
+    "ancien.sdr@example.com"
+  ],
+  "sdrs_ignores": [
+    "ancien.sdr@example.com"
+  ],
+  "data": {
+    "1001": {
+      "name": "Alex Martin",
+      "performances": {
+        "r1_bookes_semaine": 2,
+        "r1_bookes_mois": 9,
+        "r1_cette_semaine": 3,
+        "no_show_semaine": 1,
+        "agenda": [
+          {
+            "name": "Nova Systems - Nouvel élément : Deal",
+            "at": "2026-09-09T10:00:00+02:00",
+            "id": "900000001",
+            "no_show": false
+          },
+          {
+            "name": "Atlas Retail - Nouvel élément : Deal",
+            "at": "2026-09-10T14:30:00+02:00",
+            "id": "900000002",
+            "no_show": true
+          },
+          {
+            "name": "Meridian Consulting - Nouvel élément : Deal",
+            "at": "2026-09-12T09:30:00+02:00",
+            "id": "900000003",
+            "no_show": false
+          }
+        ]
+      },
+      "contexte": {
+        "leads_chauds": 4,
+        "leads_chauds_csv": "csv/1001-LEADSCHAUDS.csv",
+        "leads_chauds_numeros": 4,
+        "leads_chauds_leads": [
+          {
+            "number": "+33600000001",
+            "name": "Camille",
+            "last_name": "Rousseau",
+            "company": "Nova Systems",
+            "job_title": "Chief Marketing Officer",
+            "emails": "camille.rousseau@example.com",
+            "linkedin": "linkedin.com/in/camille-rousseau-demo",
+            "company_linkedin": "",
+            "contexte": "",
+            "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000001",
+            "ctx": {
+              "campagne": "",
+              "est_webinar": false,
+              "est_pub": false,
+              "source": "Import / scraping",
+              "reseau": "INTEGRATION",
+              "date": "2026-06-02",
+              "company": "Nova Systems",
+              "concurrents": "",
+              "concurrents_clients": "",
+              "proposition_de_valeur": ""
+            }
+          },
+          {
+            "number": "+33600000002",
+            "name": "Julien",
+            "last_name": "Perrot",
+            "company": "Atlas Retail",
+            "job_title": "Head of Sales",
+            "emails": "julien.perrot@example.com",
+            "linkedin": "",
+            "company_linkedin": "https://www.linkedin.com/company/atlas-retail-demo",
+            "contexte": "Lancement produit Q3",
+            "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000002",
+            "ctx": {
+              "campagne": "Lancement produit Q3",
+              "est_webinar": false,
+              "est_pub": true,
+              "source": "Publicité sociale",
+              "reseau": "LinkedIn",
+              "date": "2026-08-20",
+              "company": "Atlas Retail",
+              "concurrents": "",
+              "concurrents_clients": "",
+              "proposition_de_valeur": ""
+            }
+          },
+          {
+            "number": "+33600000003",
+            "name": "Nadia",
+            "last_name": "Benali",
+            "company": "Meridian Consulting",
+            "job_title": "Operations Director",
+            "emails": "nadia.benali@example.com",
+            "linkedin": "linkedin.com/in/nadia-benali-demo",
+            "company_linkedin": "",
+            "contexte": "Lancement produit Q3",
+            "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000003",
+            "ctx": {
+              "campagne": "Inscrit à un webinar ou événement physique",
+              "est_webinar": true,
+              "est_pub": true,
+              "source": "Publicité sociale",
+              "reseau": "LinkedIn",
+              "date": "2026-07-01",
+              "company": "Meridian Consulting",
+              "concurrents": "",
+              "concurrents_clients": "",
+              "proposition_de_valeur": ""
+            }
+          },
+          {
+            "number": "+33600000004",
+            "name": "Thomas",
+            "last_name": "Caron",
+            "company": "Solaris Energy",
+            "job_title": "Procurement Manager",
+            "emails": "thomas.caron@example.com",
+            "linkedin": "",
+            "company_linkedin": "",
+            "contexte": "",
+            "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000004",
+            "ctx": {
+              "campagne": "",
+              "est_webinar": false,
+              "est_pub": false,
+              "source": "Recherche organique",
+              "reseau": "",
+              "date": "2026-05-15",
+              "company": "Solaris Energy",
+              "concurrents": "",
+              "concurrents_clients": "",
+              "proposition_de_valeur": ""
+            }
+          }
+        ],
+        "nrp": [
+          {
+            "stage": "NRP0",
+            "taches": 2,
+            "numeros": 2,
+            "csv": "csv/1001-NRP0.csv",
+            "leads": [
+              {
+                "number": "+33600000007",
+                "name": "Manon",
+                "last_name": "Girard",
+                "company": "Cobalt Analytics",
+                "job_title": "VP Sales",
+                "emails": "manon.girard@example.com",
+                "linkedin": "",
+                "company_linkedin": "",
+                "contexte": "Lancement produit Q3",
+                "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000007",
+                "ctx": {
+                  "campagne": "Lancement produit Q3",
+                  "est_webinar": false,
+                  "est_pub": true,
+                  "source": "Publicité sociale",
+                  "reseau": "LinkedIn",
+                  "date": "2026-08-05",
+                  "company": "Cobalt Analytics",
+                  "concurrents": "",
+                  "concurrents_clients": "",
+                  "proposition_de_valeur": ""
+                }
+              },
+              {
+                "number": "+33600000008",
+                "name": "Victor",
+                "last_name": "Lemoine",
+                "company": "Vantage Foods",
+                "job_title": "Buyer",
+                "emails": "victor.lemoine@example.com",
+                "linkedin": "",
+                "company_linkedin": "",
+                "contexte": "",
+                "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000008",
+                "ctx": {
+                  "campagne": "",
+                  "est_webinar": false,
+                  "est_pub": false,
+                  "source": "Recherche organique",
+                  "reseau": "",
+                  "date": "2026-06-22",
+                  "company": "Vantage Foods",
+                  "concurrents": "",
+                  "concurrents_clients": "",
+                  "proposition_de_valeur": ""
+                }
+              }
+            ]
+          },
+          {
+            "stage": "NRP1",
+            "taches": 2,
+            "numeros": 2,
+            "csv": "csv/1001-NRP1.csv",
+            "leads": [
+              {
+                "number": "+33600000009",
+                "name": "Sophie",
+                "last_name": "Marchand",
+                "company": "Nova Systems",
+                "job_title": "IT Director",
+                "emails": "sophie.marchand@example.com",
+                "linkedin": "",
+                "company_linkedin": "",
+                "contexte": "",
+                "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000009",
+                "ctx": {
+                  "campagne": "Inscrit à un webinar ou événement physique",
+                  "est_webinar": true,
+                  "est_pub": false,
+                  "source": "Recherche organique",
+                  "reseau": "",
+                  "date": "2026-07-18",
+                  "company": "Nova Systems",
+                  "concurrents": "",
+                  "concurrents_clients": "",
+                  "proposition_de_valeur": ""
+                }
+              },
+              {
+                "number": "+33600000010",
+                "name": "Antoine",
+                "last_name": "Robert",
+                "company": "Atlas Retail",
+                "job_title": "Store Operations Lead",
+                "emails": "antoine.robert@example.com",
+                "linkedin": "",
+                "company_linkedin": "",
+                "contexte": "",
+                "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000010",
+                "ctx": {
+                  "campagne": "Recherche marque",
+                  "est_webinar": false,
+                  "est_pub": true,
+                  "source": "Publicité search",
+                  "reseau": "Google Ads",
+                  "date": "2026-08-11",
+                  "company": "Atlas Retail",
+                  "concurrents": "",
+                  "concurrents_clients": "",
+                  "proposition_de_valeur": ""
+                }
+              }
+            ]
+          },
+          {
+            "stage": "NRP2",
+            "taches": 1,
+            "numeros": 1,
+            "csv": "csv/1001-NRP2.csv",
+            "leads": [
+              {
+                "number": "+33600000011",
+                "name": "Claire",
+                "last_name": "Dubuisson",
+                "company": "Meridian Consulting",
+                "job_title": "Finance Manager",
+                "emails": "claire.dubuisson@example.com",
+                "linkedin": "",
+                "company_linkedin": "",
+                "contexte": "",
+                "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000011",
+                "ctx": {
+                  "campagne": "",
+                  "est_webinar": false,
+                  "est_pub": false,
+                  "source": "Trafic direct",
+                  "reseau": "",
+                  "date": "2026-05-29",
+                  "company": "Meridian Consulting",
+                  "concurrents": "",
+                  "concurrents_clients": "",
+                  "proposition_de_valeur": ""
+                }
+              }
+            ]
+          },
+          { "stage": "NRP3", "taches": 0, "numeros": 0, "csv": null, "leads": [] },
+          { "stage": "NRP4", "taches": 0, "numeros": 0, "csv": null, "leads": [] },
+          { "stage": "NRP5", "taches": 0, "numeros": 0, "csv": null, "leads": [] },
+          { "stage": "NRP6", "taches": 0, "numeros": 0, "csv": null, "leads": [] },
+          { "stage": "NRP7", "taches": 0, "numeros": 0, "csv": null, "leads": [] }
+        ],
+        "en_activation": 5,
+        "a_rappeler": 2,
+        "a_rappeler_en_retard": 1,
+        "a_rappeler_csv": "csv/1001-RAPPEL.csv",
+        "a_rappeler_numeros": 2,
+        "a_rappeler_leads": [
+          {
+            "number": "+33600000013",
+            "name": "Léa",
+            "last_name": "Fontaine",
+            "company": "Birchwood Group",
+            "job_title": "HR Manager",
+            "emails": "lea.fontaine@example.com",
+            "linkedin": "",
+            "company_linkedin": "",
+            "contexte": "",
+            "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000013"
+          },
+          {
+            "number": "+33600000014",
+            "name": "Mathieu",
+            "last_name": "Roy",
+            "company": "Halcyon Media",
+            "job_title": "Growth Lead",
+            "emails": "mathieu.roy@example.com",
+            "linkedin": "",
+            "company_linkedin": "",
+            "contexte": "",
+            "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000014"
+          }
+        ],
+        "anti_no_show": 1,
+        "anti_no_show_csv": "csv/1001-ANTINOSHOW.csv",
+        "anti_no_show_numeros": 1,
+        "anti_no_show_leads": [
+          {
+            "number": "+33600000015",
+            "name": "Julie",
+            "last_name": "Chevalier",
+            "company": "Cobalt Analytics",
+            "job_title": "Office Manager",
+            "emails": "julie.chevalier@example.com",
+            "linkedin": "",
+            "company_linkedin": "",
+            "contexte": "",
+            "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000015"
+          }
+        ],
+        "a_qualifier_manuellement": 1,
+        "a_qualifier_manuellement_csv": "csv/1001-QUALIFMANUEL.csv",
+        "a_qualifier_manuellement_numeros": 1,
+        "a_qualifier_manuellement_leads": [
+          {
+            "number": "+33600000016",
+            "name": "Nicolas",
+            "last_name": "Faucher",
+            "company": "Vantage Foods",
+            "job_title": "Category Manager",
+            "emails": "nicolas.faucher@example.com",
+            "linkedin": "",
+            "company_linkedin": "",
+            "contexte": "",
+            "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000016"
+          }
+        ]
+      }
+    },
+    "1002": {
+      "name": "Sam Dubois",
+      "performances": {
+        "r1_bookes_semaine": 1,
+        "r1_bookes_mois": 4,
+        "r1_cette_semaine": 1,
+        "no_show_semaine": 0,
+        "agenda": [
+          {
+            "name": "Solaris Energy - Nouvel élément : Deal",
+            "at": "2026-09-11T11:00:00+02:00",
+            "id": "900000004",
+            "no_show": false
+          }
+        ]
+      },
+      "contexte": {
+        "leads_chauds": 2,
+        "leads_chauds_csv": "csv/1002-LEADSCHAUDS.csv",
+        "leads_chauds_numeros": 2,
+        "leads_chauds_leads": [
+          {
+            "number": "+33600000005",
+            "name": "Elodie",
+            "last_name": "Faure",
+            "company": "Birchwood Group",
+            "job_title": "Marketing Manager",
+            "emails": "elodie.faure@example.com",
+            "linkedin": "",
+            "company_linkedin": "",
+            "contexte": "",
+            "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000005",
+            "ctx": {
+              "campagne": "",
+              "est_webinar": false,
+              "est_pub": false,
+              "source": "Trafic direct",
+              "reseau": "",
+              "date": "2026-04-10",
+              "company": "Birchwood Group",
+              "concurrents": "",
+              "concurrents_clients": "",
+              "proposition_de_valeur": ""
+            }
+          },
+          {
+            "number": "+33600000006",
+            "name": "Karim",
+            "last_name": "Haddad",
+            "company": "Halcyon Media",
+            "job_title": "Chief Executive Officer",
+            "emails": "karim.haddad@example.com",
+            "linkedin": "linkedin.com/in/karim-haddad-demo",
+            "company_linkedin": "",
+            "contexte": "",
+            "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000006",
+            "ctx": {
+              "campagne": "Recherche marque",
+              "est_webinar": false,
+              "est_pub": true,
+              "source": "Publicité search",
+              "reseau": "Google Ads",
+              "date": "2026-08-29",
+              "company": "Halcyon Media",
+              "concurrents": "",
+              "concurrents_clients": "",
+              "proposition_de_valeur": ""
+            }
+          }
+        ],
+        "nrp": [
+          {
+            "stage": "NRP0",
+            "taches": 1,
+            "numeros": 1,
+            "csv": "csv/1002-NRP0.csv",
+            "leads": [
+              {
+                "number": "+33600000012",
+                "name": "Hugo",
+                "last_name": "Lambert",
+                "company": "Solaris Energy",
+                "job_title": "Plant Manager",
+                "emails": "hugo.lambert@example.com",
+                "linkedin": "",
+                "company_linkedin": "",
+                "contexte": "Lancement produit Q3",
+                "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000012",
+                "ctx": {
+                  "campagne": "Lancement produit Q3",
+                  "est_webinar": false,
+                  "est_pub": true,
+                  "source": "Publicité sociale",
+                  "reseau": "LinkedIn",
+                  "date": "2026-08-14",
+                  "company": "Solaris Energy",
+                  "concurrents": "",
+                  "concurrents_clients": "",
+                  "proposition_de_valeur": ""
+                }
+              }
+            ]
+          },
+          { "stage": "NRP1", "taches": 0, "numeros": 0, "csv": null, "leads": [] },
+          { "stage": "NRP2", "taches": 0, "numeros": 0, "csv": null, "leads": [] },
+          { "stage": "NRP3", "taches": 0, "numeros": 0, "csv": null, "leads": [] },
+          { "stage": "NRP4", "taches": 0, "numeros": 0, "csv": null, "leads": [] },
+          { "stage": "NRP5", "taches": 0, "numeros": 0, "csv": null, "leads": [] },
+          { "stage": "NRP6", "taches": 0, "numeros": 0, "csv": null, "leads": [] },
+          { "stage": "NRP7", "taches": 0, "numeros": 0, "csv": null, "leads": [] }
+        ],
+        "en_activation": 2,
+        "a_rappeler": 1,
+        "a_rappeler_en_retard": 0,
+        "a_rappeler_csv": "csv/1002-RAPPEL.csv",
+        "a_rappeler_numeros": 1,
+        "a_rappeler_leads": [
+          {
+            "number": "+33600000017",
+            "name": "Pauline",
+            "last_name": "Girardot",
+            "company": "Nova Systems",
+            "job_title": "Office Manager",
+            "emails": "pauline.girardot@example.com",
+            "linkedin": "",
+            "company_linkedin": "",
+            "contexte": "",
+            "hubspot_url": "https://app.hubspot.com/contacts/00000000/record/0-1/700000017"
+          }
+        ],
+        "anti_no_show": 0,
+        "anti_no_show_csv": null,
+        "anti_no_show_numeros": 0,
+        "anti_no_show_leads": [],
+        "a_qualifier_manuellement": 0,
+        "a_qualifier_manuellement_csv": null,
+        "a_qualifier_manuellement_numeros": 0,
+        "a_qualifier_manuellement_leads": []
+      }
+    }
+  },
+  "entrants": {
+    "semaine": {
+      "leads": 18,
+      "mql": 5,
+      "leads_hors_seuil": 6,
+      "taux_mql": 27.8,
+      "pubs": [
+        { "reseau": "LinkedIn", "campagne": "Lancement produit Q3", "leads": 8, "mql": 3, "taux_mql": 37.5 },
+        { "reseau": "Google Ads", "campagne": "Recherche marque", "leads": 4, "mql": 1, "taux_mql": 25.0 }
+      ]
+    },
+    "mois": {
+      "leads": 74,
+      "mql": 19,
+      "leads_hors_seuil": 14,
+      "taux_mql": 25.7,
+      "pubs": [
+        { "reseau": "LinkedIn", "campagne": "Lancement produit Q3", "leads": 32, "mql": 11, "taux_mql": 34.4 },
+        { "reseau": "Google Ads", "campagne": "Recherche marque", "leads": 18, "mql": 4, "taux_mql": 22.2 },
+        { "reseau": "Meta Ads", "campagne": "Reciblage webinar", "leads": 10, "mql": 2, "taux_mql": 20.0 }
+      ]
+    }
+  },
+  "alertes": {
+    "r1_mois_sans_sdr": 1
+  }
+}

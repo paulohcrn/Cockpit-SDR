@@ -1,0 +1,22 @@
+name: Deploy to Vercel
+
+on:
+  # Ne se déclenche PAS sur les push faits par le workflow "Refresh SDR dashboard"
+  # (il utilise GITHUB_TOKEN, qui ne redéclenche pas d'autres workflows) — celui-là
+  # déploie déjà lui-même après sa collecte. Ce workflow couvre les push humains
+  # (édition directe du code, depuis un poste ou un autre outil).
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: npx --yes vercel deploy --prod --token="$VERCEL_TOKEN" --yes

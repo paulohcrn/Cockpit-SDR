@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Cockpit SDR — Démo</title>
+<script>
+  // Applique le thème mémorisé avant le premier rendu, pour éviter un flash.
+  try {
+    if (localStorage.getItem('theme') === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  } catch (e) {}
+</script>
+<style>
+  :root {
+    --bg: #0B0C0F;
+    --carte: #15171B;
+    --carte-alt: #1B1E23;
+    --ligne: #26282E;
+    --track: #202227;
+    --fg: #F3F4F6;
+    --gris: #8B8E96;
+    --accent: #818CF8;
+    --accent-bg: rgba(129, 140, 248, .16);
+    --danger: #FB7185;
+    --danger-bg: rgba(251, 113, 133, .16);
+    --success: #4ADE80;
+    --warn: #FBBF24;
+    --info: #22D3EE;
+    --info-bg: rgba(34, 211, 238, .16);
+    --ink-on-solid: #0B0C0F;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --sans: "Inter", -apple-system, "Segoe UI", Arial, sans-serif;
+    --mono: "JetBrains Mono", "SFMono-Regular", Consolas, Monaco, monospace;
+  }
+
+  /* --- Thème clair : bascule visuelle uniquement, aucune logique --- */
+  :root[data-theme="light"] {
+    --bg: #FAFAFB;
+    --carte: #FFFFFF;
+    --carte-alt: #F3F4F6;
+    --ligne: #E7E8EC;
+    --track: #ECEDF0;
+    --fg: #14151A;
+    --gris: #6B6F79;
+    --accent: #4F46E5;
+    --accent-bg: rgba(79, 70, 229, .08);
+    --danger: #E11D48;
+    --danger-bg: rgba(225, 29, 72, .08);
+    --success: #16A34A;
+    --warn: #D97706;
+    --info: #0891B2;
+    --info-bg: rgba(8, 145, 178, .08);
+    --ink-on-solid: #FFFFFF;
+  }
+
+  * {
+    box-sizing: border-box;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+  }
+
+  body {
+    margin: 0;
+    padding: 48px 32px 80px;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; }
+
+  /* --- En-tête --- */
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--ligne);
+  }
+  h1 {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  h1 span { color: var(--accent); }
+  .meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gris);
+    text-align: right;
+    line-height: 1.5;
+  }
+  .maj { display: flex; align-items: center; gap: 16px; }
+  .btn {
+    flex-shrink: 0;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 16px;
+    border: 1px solid var(--ligne);
+    border-radius: var(--radius);
+    background: var(--carte);
+    color: var(--fg);
+    cursor: pointer;
+  }
+  .btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+  .btn:disabled { color: var(--gris); cursor: default; opacity: 0.7; }
+  .btn.ko { border-color: var(--danger); color: var(--danger); background: var(--danger-bg); }
+
+  .picker { display: flex; align-items: center; gap: 12px; margin: 28px 0 8px; }
+  .picker label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+  select {
+    appearance: none;
+    background: var(--carte);
+    color: var(--fg);
+    border: 1px solid var(--ligne);
+    border-radius: var(--radius);
+    padding: 10px 40px 10px 16px;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+                      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: calc(100% - 20px) 55%, calc(100% - 14px) 55%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+  }
+  select:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* --- Gestion de l'équipe --- */
+  .lien {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--gris);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .lien:hover { color: var(--accent); }
+
+  #panneau, #panneauRappel {
+    margin-top: 16px;
+    padding: 20px;
+    background: var(--carte);
+    border: 1px solid var(--ligne);
+    border-radius: var(--radius);
+    max-width: 620px;
+  }
+  #liste { list-style: none; margin: 0 0 16px; padding: 0; }
+  #liste li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--ligne);
+    font-size: 14px;
+  }
+  #liste li:last-child { border-bottom: none; }
+  #liste .qui { flex: 1; overflow-wrap: anywhere; }
+  #liste .tagko {
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--danger-bg);
+    color: var(--danger);
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+  #liste .retirer {
+    flex-shrink: 0;
+    background: none;
+    border: 1px solid var(--ligne);
+    border-radius: var(--radius-sm);
+    color: var(--gris);
+    font-size: 14px;
+    line-height: 1;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  #liste .retirer:hover { border-color: var(--danger); color: var(--danger); }
+
+  .ajout { display: flex; gap: 8px; }
+  .ajout input {
+    flex: 1;
+    min-width: 0;
+    background: var(--bg);
+    border: 1px solid var(--ligne);
+    border-radius: var(--radius);
+    color: var(--fg);
+    font-family: var(--sans);
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+  .ajout input:focus { outline: none; border-color: var(--accent); }
+  .ajout button, .actions button.primaire {
+    flex-shrink: 0;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: var(--ink-on-solid);
+    cursor: pointer;
+  }
+  .ajout button:hover, .actions button.primaire:hover:not(:disabled) { opacity: 0.88; }
+  .actions { display: flex; align-items: center; gap: 20px; margin-top: 18px; }
+  .actions button.primaire:disabled { background: var(--ligne); border-color: var(--ligne); color: var(--gris); cursor: default; }
+  .note:empty { display: none; }
+  .note.ko { color: var(--danger); }
+  .note.ok { color: var(--success); }
+
+  /* --- Rappel Allo (anti no-show) --- */
+  #ouvrirRappel { display: block; margin-top: 14px; }
+  #listeRappel { list-style: none; margin: 0 0 16px; padding: 0; max-height: 260px; overflow-y: auto; }
+  #listeRappel li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--ligne);
+    font-size: 14px;
+  }
+  #listeRappel li:last-child { border-bottom: none; }
+  #listeRappel label { flex: 1; overflow-wrap: anywhere; cursor: pointer; }
+  #listeRappel input[type="radio"] { accent-color: var(--accent); flex-shrink: 0; }
+
+  /* --- Sections --- */
+  section { margin-top: 52px; }
+  .rubrique {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ligne);
+  }
+  .rubrique .num {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--accent);
+  }
+  .rubrique h2 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 19px;
+    margin: 0;
+    letter-spacing: -0.005em;
+  }
+  .rubrique .hint {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gris);
+  }
+
+  /* --- KPI --- */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1px;
+    background: var(--ligne);
+    border: 1px solid var(--ligne);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .kpi { background: var(--carte); padding: 22px 20px 18px; }
+  .kpi .val {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 36px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .kpi .lbl { margin-top: 10px; font-size: 13px; color: var(--gris); }
+  .kpi.accent .val { color: var(--accent); }
+  .kpi.alerte .val { color: var(--danger); }
+  .kpi .sub { margin-top: 6px; font-family: var(--mono); font-size: 11px; color: var(--gris); }
+
+  /* --- Barres NRP --- */
+  .nrp { margin-top: 2px; border: 1px solid var(--ligne); border-radius: var(--radius); overflow: hidden; }
+  .nrp-row {
+    display: grid;
+    grid-template-columns: 64px 1fr 84px 58px 74px 74px;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    background: var(--carte);
+    border-bottom: 1px solid var(--ligne);
+  }
+  .nrp-row:last-child { border-bottom: none; }
+  .nrp-row.head {
+    background: var(--carte-alt);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+  .nrp-row .tag { font-family: var(--mono); font-weight: 600; font-size: 13px; }
+  .bar { height: 8px; background: var(--track); border-radius: 999px; position: relative; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; }
+  .nrp-row .n {
+    font-family: var(--mono);
+    font-weight: 600;
+    font-size: 16px;
+    text-align: right;
+  }
+  .nrp-row .n.muted { color: var(--gris); font-weight: 400; }
+  .dl {
+    display: block;
+    text-align: center;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 6px 0;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: var(--ink-on-solid);
+  }
+  .dl:hover { opacity: 0.85; }
+  .dl.off { background: none; color: var(--ligne); font-weight: 400; }
+  button.dl {
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    font-family: var(--sans);
+    background: var(--warn);
+    color: var(--ink-on-solid);
+  }
+  button.dl:hover { opacity: 0.85; }
+  button.dl:disabled { cursor: default; opacity: 0.5; }
+  button.dl.minari { background: var(--info); }
+
+  /* --- Contexte des leads --- */
+  .recherche { display: flex; align-items: center; gap: 14px; margin-bottom: 2px; }
+  .recherche input {
+    flex: 1;
+    min-width: 0;
+    background: var(--carte);
+    border: 1px solid var(--ligne);
+    border-radius: var(--radius);
+    color: var(--fg);
+    font-family: var(--sans);
+    font-size: 14px;
+    padding: 11px 14px;
+  }
+  .recherche input:focus { outline: none; border-color: var(--accent); }
+  .recherche input::placeholder { color: var(--gris); }
+  .recherche .compte {
+    flex-shrink: 0;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gris);
+  }
+
+  .etapes { border: 1px solid var(--ligne); border-radius: var(--radius); overflow: hidden; }
+  .etape { border-bottom: 1px solid var(--ligne); }
+  .etape:last-child { border-bottom: none; }
+  .etape > summary {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 20px;
+    background: var(--carte);
+    cursor: pointer;
+    list-style: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .etape > summary::-webkit-details-marker { display: none; }
+  /* Triangle dessiné en CSS plutôt qu'un glyphe : les polices de la pile ne
+     couvrent pas toutes U+25B8, et le repli s'affichait en carré. */
+  .etape > summary::before {
+    content: '';
+    flex-shrink: 0;
+    width: 0;
+    height: 0;
+    border-left: 5px solid var(--gris);
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    transition: transform 0.12s ease, border-color 0.12s ease;
+  }
+  .etape[open] > summary::before { transform: rotate(90deg); border-left-color: var(--accent); }
+  .etape > summary:hover { background: var(--carte-alt); }
+  .etape > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .etape > summary .tag { font-family: var(--mono); font-weight: 600; font-size: 13px; }
+  .etape > summary .cb {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--gris);
+  }
+
+  .lead-row {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 20px;
+    padding: 12px 20px 12px 44px;
+    border-top: 1px solid var(--ligne);
+    font-size: 14px;
+  }
+  .lead-row.head {
+    padding-top: 9px;
+    padding-bottom: 9px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gris);
+    background: var(--carte-alt);
+  }
+  .lead-row.off { display: none; }
+  .lead-row .qui { overflow-wrap: anywhere; }
+  .lead-row .qui a {
+    color: var(--fg);
+    text-decoration: none;
+    border-bottom: 1px solid var(--ligne);
+  }
+  .lead-row .qui a:hover { color: var(--accent); border-color: var(--accent); }
+  .lead-row .qui .warn-numero {
+    display: inline-block;
+    margin-left: 6px;
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--danger);
+    white-space: nowrap;
+  }
+  .lead-row .ctx { min-width: 0; }
+  .lead-row .ctx span { display: block; overflow-wrap: anywhere; }
+  .lead-row .l-src { color: var(--gris); }
+  .lead-row .l-camp { color: var(--fg); font-weight: 500; }
+  .lead-row .l-meta { margin-top: 3px; font-family: var(--mono); font-size: 11px; color: var(--gris); }
+  .lead-row .l-meta b { color: var(--fg); font-weight: 500; }
+  .lead-row .l-entreprise { font-style: italic; }
+
+  /* --- Tableau pubs --- */
+  table { width: 100%; border-collapse: collapse; margin-top: 2px; }
+  th {
+    text-align: left;
+    padding: 12px 16px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gris);
+    border-bottom: 1px solid var(--ligne);
+  }
+  td {
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--ligne);
+    background: var(--carte);
+    font-size: 14px;
+  }
+  td.num { font-family: var(--mono); font-weight: 600; text-align: right; }
+  td.pct { font-family: var(--mono); text-align: right; color: var(--accent); }
+  .reseau {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--info);
+    background: var(--info-bg);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+
+  /* --- Agenda R1 --- */
+  .agenda { margin-top: 2px; border: 1px solid var(--ligne); border-radius: var(--radius); overflow: hidden; }
+  .agenda-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 13px 20px;
+    background: var(--carte);
+    border-bottom: 1px solid var(--ligne);
+  }
+  .agenda-row:last-child { border-bottom: none; }
+  .agenda-row time { font-family: var(--mono); font-size: 13px; color: var(--accent); min-width: 128px; }
+  .agenda-row .who { flex: 1; }
+  .badge {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--danger-bg);
+    color: var(--danger);
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+
+  .vide { padding: 22px 20px; color: var(--gris); font-size: 14px; background: var(--carte); border: 1px solid var(--ligne); border-radius: var(--radius); }
+  .note { margin-top: 14px; font-family: var(--mono); font-size: 11px; color: var(--gris); }
+  .note b { color: var(--danger); font-weight: 400; }
+
+  @media (max-width: 640px) {
+    body { padding: 32px 16px 60px; }
+    h1 { font-size: 22px; }
+    .nrp-row { grid-template-columns: 52px 1fr 52px 46px 62px 62px; gap: 8px; padding: 10px 12px; }
+    .lead-row { grid-template-columns: 1fr; gap: 6px; padding: 12px 14px 12px 30px; }
+    .lead-row.head { display: none; }
+    .lead-row .qui { font-weight: 600; }
+    .kpi .val { font-size: 30px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Cockpit <span>SDR</span></h1>
+    <div class="maj">
+      <button id="themeToggle" type="button" class="lien"></button>
+      <div class="meta" id="meta">chargement…</div>
+      <button id="refresh" type="button" class="btn">Rafraîchir</button>
+    </div>
+  </header>
+
+  <div class="picker">
+    <label for="sdr">SDR</label>
+    <select id="sdr"></select>
+    <button id="gerer" type="button" class="btn">Gérer l'équipe</button>
+  </div>
+
+  <div id="panneau" hidden>
+    <ul id="liste"></ul>
+    <div class="ajout">
+      <input id="nouveau" type="email" placeholder="prenom.nom@entreprise.com"
+             autocomplete="off" spellcheck="false">
+      <button id="ajouter" type="button">Ajouter</button>
+    </div>
+    <p class="note" id="msg"></p>
+    <div class="actions">
+      <button id="enregistrer" type="button" class="primaire">Enregistrer et rafraîchir</button>
+      <button id="annuler" type="button" class="lien">Annuler</button>
+    </div>
+  </div>
+
+  <section>
+    <div class="rubrique">
+      <span class="num">01</span>
+      <h2>Mes performances</h2>
+      <span class="hint" id="periode"></span>
+    </div>
+    <div class="kpis" id="perf"></div>
+    <div id="agenda"></div>
+  </section>
+
+  <section>
+    <div class="rubrique">
+      <span class="num">02</span>
+      <h2>Mes tâches en attente</h2>
+      <span class="hint">état actuel du pipe</span>
+    </div>
+    <div class="kpis" id="contexte"></div>
+    <div class="nrp" id="nrp"></div>
+
+    <button id="ouvrirRappel" type="button" class="btn">Envoyer un rappel Allo</button>
+    <div id="panneauRappel" hidden>
+      <p class="note">
+        Choisir un contact ayant une tâche « Rappel anti no show » ouverte, puis valider :
+        le message générique est envoyé par SMS via Allo.
+      </p>
+      <ul id="listeRappel"></ul>
+      <p class="note" id="msgRappel"></p>
+      <div class="actions">
+        <button id="envoyerRappel" type="button" class="primaire">Envoyer</button>
+        <button id="annulerRappel" type="button" class="lien">Annuler</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="rubrique">
+      <span class="num">03</span>
+      <h2>Contexte des leads</h2>
+      <span class="hint">leads chauds + étapes NRP0 → NRP7, dans l'ordre des CSV</span>
+    </div>
+    <div class="recherche">
+      <input id="chercheLead" type="search" autocomplete="off" spellcheck="false"
+             placeholder="Rechercher un lead, une entreprise, une campagne…"
+             aria-label="Rechercher un lead">
+      <span class="compte" id="compteLead"></span>
+    </div>
+    <div id="ctxLeads"></div>
+  </section>
+
+  <section>
+    <div class="rubrique">
+      <span class="num">04</span>
+      <h2>Leads entrants</h2>
+      <span class="hint">toute l'équipe</span>
+    </div>
+    <div class="kpis" id="entrants"></div>
+    <table id="pubs"></table>
+    <p class="note" id="seuil"></p>
+    <p class="note">Ventilation au niveau campagne : HubSpot ne remonte pas l'identifiant de la publicité (linkedin_ad_id vide). Pour descendre au niveau pub, ajouter des UTM par publicité dans LinkedIn Campaign Manager.</p>
+  </section>
+
+</div>
+
+<script>
+// --- Thème clair / sombre --------------------------------------------------
+// Bascule purement visuelle (variables CSS déjà posées dans <style>), sans
+// impact sur les données ni la logique. L'état est mémorisé dans le
+// navigateur ; le <script> en tête de <head> l'applique avant le premier
+// rendu pour éviter un flash.
+
+const themeToggle = document.getElementById('themeToggle');
+
+function appliquerTheme(theme) {
+  if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  else document.documentElement.removeAttribute('data-theme');
+  themeToggle.textContent = theme === 'light' ? 'Thème sombre' : 'Thème clair';
+  try { localStorage.setItem('theme', theme); } catch (e) {}
+}
+
+appliquerTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+
+themeToggle.addEventListener('click', () => {
+  appliquerTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+});
+
+const N = n => (n ?? 0).toLocaleString('fr-FR');
+
+function kpi(val, label, sub, mod) {
+  return `<div class="kpi ${mod || ''}">
+    <div class="val">${N(val)}</div>
+    <div class="lbl">${label}</div>
+    ${sub ? `<div class="sub">${sub}</div>` : ''}
+  </div>`;
+}
+
+function renderPerf(p) {
+  document.getElementById('perf').innerHTML =
+    kpi(p.r1_bookes_semaine, 'R1 bookés cette semaine', null, 'accent') +
+    kpi(p.r1_bookes_mois, 'R1 bookés ce mois') +
+    kpi(p.r1_cette_semaine, 'R1 qui ont lieu cette semaine') +
+    kpi(p.no_show_semaine, 'No-show cette semaine', null, p.no_show_semaine ? 'alerte' : '');
+
+  const el = document.getElementById('agenda');
+  if (!p.agenda.length) { el.innerHTML = ''; return; }
+  el.innerHTML = '<div class="agenda">' + p.agenda.map(r => {
+    const d = new Date(r.at);
+    const when = d.toLocaleString('fr-FR', {
+      weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+    });
+    return `<div class="agenda-row">
+      <time>${when}</time>
+      <span class="who">${r.name}</span>
+      ${r.no_show ? '<span class="badge">no-show</span>' : ''}
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function renderContexte(c) {
+  const total = c.nrp.reduce((s, x) => s + x.taches, 0);
+  document.getElementById('contexte').innerHTML =
+    kpi(total, 'Tâches NRP à traiter', null, 'accent') +
+    kpi(c.a_rappeler, 'Tâches « à rappeler »',
+        c.a_rappeler_en_retard ? c.a_rappeler_en_retard + ' en retard' : null,
+        c.a_rappeler_en_retard ? 'alerte' : '') +
+    kpi(c.en_activation, 'Leads en activation');
+
+  // Ligne « Leads chauds » (liste HubSpot, pas des tâches) : en tête du tableau, la
+  // colonne « Tâches » y compte les leads de la liste dont le SDR est propriétaire.
+  // Valeurs par défaut : un data.json d'avant cette ligne n'a pas encore ces clés.
+  const chauds = {
+    stage: 'Leads chauds', label: 'Liste HubSpot « [SDR-Team] - Leads chauds »',
+    taches: c.leads_chauds || 0, numeros: c.leads_chauds_numeros || 0,
+    csv: c.leads_chauds_csv, leads: c.leads_chauds_leads || [],
+  };
+  const max = Math.max(1, chauds.taches, ...c.nrp.map(x => x.taches), c.a_rappeler, c.anti_no_show, c.a_qualifier_manuellement);
+  const rows = [chauds].concat(c.nrp).concat([
+    { stage: 'RAPPEL', label: 'à rappeler', taches: c.a_rappeler,
+      numeros: c.a_rappeler_numeros, csv: c.a_rappeler_csv, leads: c.a_rappeler_leads },
+    { stage: 'Anti NS', label: 'Rappel anti no show', taches: c.anti_no_show,
+      numeros: c.anti_no_show_numeros, csv: c.anti_no_show_csv, leads: c.anti_no_show_leads },
+    { stage: 'A qualif à la main', label: 'A qualifier manuellement (lead paid)', taches: c.a_qualifier_manuellement,
+      numeros: c.a_qualifier_manuellement_numeros, csv: c.a_qualifier_manuellement_csv, leads: c.a_qualifier_manuellement_leads },
+  ]);
+  leadsParEtape = {};
+  rows.forEach(x => { if (x.leads && x.leads.length) leadsParEtape[x.stage] = x.leads; });
+
+  document.getElementById('nrp').innerHTML =
+    `<div class="nrp-row head"><span>Étape</span><span>Répartition</span>
+     <span style="text-align:right">Tâches</span><span>CSV</span><span>Allo</span><span>Minari</span></div>` +
+    rows.map(x => `<div class="nrp-row">
+      <span class="tag" title="${x.label || x.stage}">${x.stage}</span>
+      <span class="bar"><i style="width:${(x.taches / max * 100).toFixed(1)}%"></i></span>
+      <span class="n ${x.taches ? '' : 'muted'}">${N(x.taches)}</span>
+      ${x.csv
+        ? `<a class="dl" href="${x.csv}" download
+             title="${N(x.numeros)} numéro(s) au format power dialer Allo">CSV</a>`
+        : '<span class="dl off">—</span>'}
+      ${x.leads && x.leads.length
+        ? `<button type="button" class="dl call" data-provider="allo" data-stage="${x.stage}"
+             title="Charger ${N(x.numeros)} numéro(s) dans la queue Allo pour appeler">Allo</button>`
+        : '<span class="dl off">—</span>'}
+      ${x.leads && x.leads.length
+        ? `<button type="button" class="dl call minari" data-provider="minari" data-stage="${x.stage}"
+             title="Créer une liste Minari avec ${N(x.numeros)} numéro(s) pour appeler">Minari</button>`
+        : '<span class="dl off">—</span>'}
+    </div>`).join('');
+}
+
+// --- Rubrique 03 : contexte des leads chauds et NRP ----------------------
+// Un menu déroulant pour les leads chauds puis un par étape NRP0→NRP7, chacun
+// listant ses leads dans l'ordre exact du CSV correspondant. Seules la liste des
+// leads chauds et les étapes NRP sont concernées :
+// ni « à rappeler », ni anti no-show, ni qualif manuelle. Le contexte vient de
+// data.json (clé "ctx" posée par build_data.py), donc il se met à jour avec le
+// bouton Rafraîchir, comme le reste du dashboard.
+
+const champCherche = document.getElementById('chercheLead');
+const compteLead = document.getElementById('compteLead');
+const ctxLeads = document.getElementById('ctxLeads');
+// Étapes dépliées à la main : la recherche force l'ouverture des étapes qui
+// matchent, on restitue l'état de l'utilisateur quand elle est vidée.
+const etapesOuvertes = new Set();
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g,
+  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// Recherche insensible à la casse ET aux accents : « lheritier » trouve « L'Héritier ».
+const norm = s => String(s ?? '').toLowerCase().normalize('NFD').replace(new RegExp('[\\u0300-\\u036f]', 'g'), '');
+const jour = iso => (iso || '').split('-').reverse().join('/');
+
+// Ressource (lead magnet) envoyée au lead pour chaque campagne — HubSpot ne
+// remonte pas cette info, donc on la maintient ici à la main, campagne par
+// campagne, pour que le SDR sache de quoi parler au rappel.
+const RESSOURCES_PAR_CAMPAGNE = {
+  'génération de leads - jan 28, 2026': 'Le Guide du CMO sur Claude 2026',
+  'génération de leads - jul 22, 2026': 'Budget IA 2027 - Guide CMO',
+};
+const ressourceCampagne = nom => RESSOURCES_PAR_CAMPAGNE[nom] || '';
+
+// Numéros bidon repérés en prod (saisis par erreur par un lead ou un
+// testeur) : 06/07 répété ou avec des zéros. On compare sur le format
+// national à 10 chiffres pour matcher toutes les variantes de saisie
+// (espaces, préfixe +33 avec ou sans le 0 national).
+const NUMEROS_SUSPECTS = new Set(['0606060606', '0707070707', '0600000000', '0700000000']);
+function numeroSuspect(number) {
+  let d = String(number ?? '').replace(/\D/g, '');
+  if (d.startsWith('33')) d = d.slice(2);
+  if (d.length === 9) d = '0' + d;
+  return NUMEROS_SUSPECTS.has(d);
+}
+
+function celluleContexte(ctx) {
+  if (!ctx) return '<span class="l-src">contexte indisponible — relancer une collecte</span>';
+
+  // Un lead inscrit à un webinar ou un événement physique (liste HubSpot
+  // « [SDR-Team] - Leads entrants webinar ») porte déjà son libellé dans
+  // ctx.campagne, posé par build_data.py à la place de la campagne d'origine :
+  // il s'affiche en tête même quand le lead n'est venu d'aucune pub.
+  const ressource = ctx.est_pub && !ctx.est_webinar ? ressourceCampagne(ctx.campagne) : '';
+  const tete = ctx.est_pub || ctx.est_webinar
+    ? `<span class="l-camp">${esc(ctx.campagne || 'pub sans nom')}${ressource
+        ? ` — ${esc(ressource)}` : ''}</span>`
+    : `<span class="l-src">${esc(ctx.source || 'source inconnue')}</span>`;
+
+  const meta = [
+    ctx.company ? `<b>${esc(ctx.company)}</b>` : '',
+    esc(ctx.reseau),
+    ctx.date ? (ctx.est_pub && !ctx.est_webinar ? 'cliqué le ' : 'le ') + jour(ctx.date) : '',
+  ].filter(Boolean).join(' · ');
+
+  const propValeur = ctx.proposition_de_valeur
+    ? `<span class="l-meta l-entreprise">Proposition de valeur : ${esc(ctx.proposition_de_valeur)}</span>` : '';
+  const concurrents = ctx.concurrents
+    ? `<span class="l-meta l-entreprise">Concurrents : ${esc(ctx.concurrents)}</span>` : '';
+  // Concurrents du lead déjà clients chez nous : argument de vente le plus direct
+  // du rappel, donc affiché en dernier, juste avant l'appel.
+  const concurrentsClients = ctx.concurrents_clients
+    ? `<span class="l-meta l-entreprise">Concurrents déjà clients : ${esc(ctx.concurrents_clients)}</span>` : '';
+
+  return tete
+    + (meta ? `<span class="l-meta">${meta}</span>` : '')
+    + propValeur
+    + concurrents
+    + concurrentsClients;
+}
+
+function renderContexteLeads(c) {
+  // Même menu déroulant que les étapes NRP pour les leads chauds, en premier :
+  // mêmes leads que la ligne du tableau ci-dessus, même clé "ctx".
+  const chauds = c.leads_chauds_leads && c.leads_chauds_leads.length
+    ? [{ stage: 'Leads chauds', leads: c.leads_chauds_leads }]
+    : [];
+  const etapes = chauds.concat(c.nrp.filter(x => x.leads && x.leads.length));
+  if (!etapes.length) {
+    ctxLeads.innerHTML = '<p class="vide">Aucun lead chaud ni NRP avec un numéro appelable pour ce SDR.</p>';
+    compteLead.textContent = '';
+    return;
+  }
+
+  ctxLeads.innerHTML = '<div class="etapes">' + etapes.map(x => `
+    <details class="etape" data-stage="${esc(x.stage)}"${etapesOuvertes.has(x.stage) ? ' open' : ''}>
+      <summary>
+        <span class="tag">${esc(x.stage)}</span>
+        <span class="cb"><span class="nb">${N(x.leads.length)}</span> lead(s)</span>
+      </summary>
+      <div class="lead-row head"><span>Nom et prénom</span><span>Contexte</span></div>
+      ${x.leads.map(l => {
+        const nom = `${l.name || ''} ${l.last_name || ''}`.trim() || l.number;
+        const cle = norm([nom, l.ctx?.company, l.company,
+                          l.ctx?.campagne, l.ctx?.source, l.ctx?.reseau]
+                         .filter(Boolean).join(' '));
+        return `<div class="lead-row" data-q="${esc(cle)}">
+          <span class="qui">${l.hubspot_url
+            ? `<a href="${esc(l.hubspot_url)}" target="_blank" rel="noopener">${esc(nom)}</a>`
+            : esc(nom)}${numeroSuspect(l.number)
+              ? ` <span class="warn-numero" title="Numéro suspect : ${esc(l.number)}">⚠ Attention wrong number</span>`
+              : ''}</span>
+          <span class="ctx">${celluleContexte(l.ctx)}</span>
+        </div>`;
+      }).join('')}
+    </details>`).join('') + '</div>';
+
+  filtrerLeads();
+}
+
+function filtrerLeads() {
+  const q = norm(champCherche.value.trim());
+  let total = 0, vus = 0;
+
+  ctxLeads.querySelectorAll('.etape').forEach(det => {
+    const lignes = det.querySelectorAll('.lead-row:not(.head)');
+    let n = 0;
+    lignes.forEach(li => {
+      const ok = !q || li.dataset.q.includes(q);
+      li.classList.toggle('off', !ok);
+      if (ok) n++;
+    });
+    total += lignes.length;
+    vus += n;
+    det.hidden = !!q && !n;
+    det.querySelector('.nb').textContent = q ? `${N(n)}/${N(lignes.length)}` : N(lignes.length);
+    det.open = q ? n > 0 : etapesOuvertes.has(det.dataset.stage);
+  });
+
+  compteLead.textContent = q ? `${N(vus)} / ${N(total)} lead(s)` : `${N(total)} lead(s)`;
+}
+
+// 'toggle' ne bulle pas : on écoute en phase de capture. On n'enregistre que les
+// ouvertures manuelles, pas celles que la recherche vient de forcer.
+ctxLeads.addEventListener('toggle', e => {
+  const det = e.target.closest?.('.etape');
+  if (!det || champCherche.value.trim()) return;
+  if (det.open) etapesOuvertes.add(det.dataset.stage);
+  else etapesOuvertes.delete(det.dataset.stage);
+}, true);
+
+champCherche.addEventListener('input', filtrerLeads);
+
+function renderEntrants(e) {
+  const s = e.semaine, m = e.mois;
+  document.getElementById('entrants').innerHTML =
+    kpi(s.leads, 'Leads entrants (semaine)', null, 'accent') +
+    kpi(s.mql, 'MQL (semaine)', s.taux_mql + ' % des leads') +
+    kpi(m.leads, 'Leads entrants (mois)') +
+    kpi(m.mql, 'MQL (mois)', m.taux_mql + ' % des leads');
+
+  document.getElementById('pubs').innerHTML =
+    `<tr><th>Réseau</th><th>Campagne</th><th style="text-align:right">Leads</th>
+     <th style="text-align:right">MQL</th><th style="text-align:right">Taux</th></tr>` +
+    (m.pubs.length
+      ? m.pubs.map(p => `<tr>
+          <td><span class="reseau">${p.reseau}</span></td>
+          <td>${p.campagne}${ressourceCampagne(p.campagne)
+            ? ` <span class="l-meta">— ${esc(ressourceCampagne(p.campagne))}</span>` : ''}</td>
+          <td class="num">${N(p.leads)}</td>
+          <td class="num">${N(p.mql)}</td>
+          <td class="pct">${p.taux_mql} %</td>
+        </tr>`).join('')
+      : '<tr><td colspan="5" class="vide">Aucune campagne au-dessus de 10 leads ce mois-ci.</td></tr>');
+
+  document.getElementById('seuil').textContent = m.leads_hors_seuil
+    ? `Campagnes de plus de 10 leads uniquement — ${N(m.leads_hors_seuil)} lead(s) du mois arrivent par des campagnes plus petites et ne figurent pas dans ce tableau.`
+    : 'Campagnes de plus de 10 leads uniquement.';
+}
+
+const sel = document.getElementById('sdr');
+const meta = document.getElementById('meta');
+const btn = document.getElementById('refresh');
+let data = null;
+let leadsParEtape = {};
+
+function render(d) {
+  data = d;
+  const gen = new Date(d.genere_le);
+  meta.innerHTML =
+    `MAJ ${gen.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` +
+    (d.alertes.r1_mois_sans_sdr
+      ? `<br><span style="color:var(--danger)">${d.alertes.r1_mois_sans_sdr} R1 du mois sans SDR identifié</span>`
+      : '');
+
+  const fmt = s => new Date(s).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+  document.getElementById('periode').textContent =
+    `semaine du ${fmt(d.semaine.debut)} au ${fmt(d.semaine.fin)}`;
+
+  // La liste des SDR vient de data.json : ajouter un SDR dans sdrs.json suffit.
+  const garder = d.sdrs.some(s => s.id === sel.value) ? sel.value : d.sdrs[0].id;
+  sel.innerHTML = d.sdrs.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  sel.value = garder;
+
+  showSdr();
+  renderEntrants(d.entrants);
+}
+
+function showSdr() {
+  const block = data.data[sel.value];
+  if (!block) return;
+  renderPerf(block.performances);
+  renderContexte(block.contexte);
+  renderContexteLeads(block.contexte);
+  if (!panneauRappel.hidden) dessinerRappel();
+}
+
+sel.addEventListener('change', showSdr);
+
+const load = () => fetch('data.json?t=' + Date.now()).then(r => r.json());
+
+load().then(render).catch(err => {
+  meta.textContent = 'données indisponibles';
+  console.error(err);
+});
+
+// --- Rafraîchissement à la demande ---------------------------------------
+// Le bouton déclenche le workflow GitHub via /api/refresh, puis on interroge
+// data.json jusqu'à ce que "genere_le" change (le workflow commite, le site
+// se redéploie). Compter 1 à 3 minutes.
+
+const POLL_MS = 10000;
+const TIMEOUT_MS = 6 * 60 * 1000;
+
+function etat(texte, actif, ko) {
+  btn.textContent = texte;
+  btn.disabled = !actif;
+  btn.classList.toggle('ko', !!ko);
+}
+
+async function attendre(avant) {
+  const debut = Date.now();
+  while (Date.now() - debut < TIMEOUT_MS) {
+    await new Promise(r => setTimeout(r, POLL_MS));
+    const ecoule = Math.round((Date.now() - debut) / 1000);
+    etat(`En cours… ${ecoule}s`, false);
+    try {
+      const frais = await load();
+      if (frais.genere_le !== avant) {
+        render(frais);
+        etat('À jour ✓', false);
+        setTimeout(() => etat('Rafraîchir', true), 4000);
+        return;
+      }
+    } catch (_) { /* redéploiement en cours, on retente */ }
+  }
+  etat('Trop long — recharger', true, true);
+}
+
+btn.addEventListener('click', async () => {
+  const avant = data?.genere_le;
+  etat('Lancement…', false);
+  try {
+    const res = await fetch('api/refresh', { method: 'POST' });
+    if (res.status === 202) return attendre(avant);
+
+    const corps = await res.json().catch(() => ({}));
+    etat(corps.error || `Échec (${res.status})`, true, true);
+    if (corps.detail) console.error(corps.detail);
+    setTimeout(() => etat('Rafraîchir', true), 6000);
+  } catch (e) {
+    etat('Serveur injoignable', true, true);
+    console.error(e);
+    setTimeout(() => etat('Rafraîchir', true), 6000);
+  }
+});
+
+// --- Gestion de l'équipe --------------------------------------------------
+// Le panneau édite une copie locale ; rien n'est écrit tant qu'on n'enregistre pas.
+// À l'enregistrement, /api/sdrs commite sdrs.json puis relance la collecte —
+// sans quoi un SDR ajouté n'aurait aucune donnée.
+
+const panneau = document.getElementById('panneau');
+const liste = document.getElementById('liste');
+const champ = document.getElementById('nouveau');
+const msg = document.getElementById('msg');
+const btnEnr = document.getElementById('enregistrer');
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const OWNER_ID = /^\d{4,}$/;
+let brouillon = [];
+
+function info(texte, type) {
+  msg.textContent = texte || '';
+  msg.className = 'note' + (type ? ' ' + type : '');
+}
+
+/** Nom résolu si connu, sinon l'entrée brute (SDR ajouté pas encore collecté). */
+function libelle(entree) {
+  const cle = entree.trim().toLowerCase();
+  const connu = (data?.sdrs || []).find(
+    s => s.id === entree.trim() || (s.email && s.email.toLowerCase() === cle)
+  );
+  if (connu) return { texte: `${connu.name}`, sous: entree, ko: false };
+  const ignore = (data?.sdrs_ignores || []).some(x => x.toLowerCase() === cle);
+  return { texte: entree, sous: null, ko: ignore };
+}
+
+function dessiner() {
+  liste.innerHTML = brouillon.map((e, i) => {
+    const l = libelle(e);
+    return `<li>
+      <span class="qui">${l.texte}${l.sous ? ` <span style="color:var(--gris)">· ${l.sous}</span>` : ''}</span>
+      ${l.ko ? '<span class="tagko">introuvable</span>' : ''}
+      <button class="retirer" type="button" data-i="${i}" aria-label="Retirer ${e}">×</button>
+    </li>`;
+  }).join('');
+  btnEnr.disabled = !brouillon.length;
+}
+
+liste.addEventListener('click', e => {
+  const b = e.target.closest('.retirer');
+  if (!b) return;
+  const i = Number(b.dataset.i);
+  if (brouillon.length === 1) return info('Il faut garder au moins un SDR.', 'ko');
+  brouillon.splice(i, 1);
+  info('');
+  dessiner();
+});
+
+function ajouter() {
+  const v = champ.value.trim();
+  if (!v) return;
+  if (!EMAIL.test(v) && !OWNER_ID.test(v)) {
+    return info("Entrer un email HubSpot ou un owner ID numérique.", 'ko');
+  }
+  if (brouillon.some(x => x.toLowerCase() === v.toLowerCase())) {
+    return info('Ce SDR est déjà dans la liste.', 'ko');
+  }
+  brouillon.push(v);
+  champ.value = '';
+  info('');
+  dessiner();
+}
+
+document.getElementById('ajouter').addEventListener('click', ajouter);
+champ.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); ajouter(); } });
+
+document.getElementById('gerer').addEventListener('click', async () => {
+  if (!panneau.hidden) { panneau.hidden = true; return; }
+  panneau.hidden = false;
+  info('Chargement de la liste…');
+  // On lit sdrs.json plutôt que data.json : il contient aussi les entrées qui
+  // n'ont pas été résolues, donc réparables ici.
+  try {
+    const res = await fetch('api/sdrs');
+    if (res.ok) {
+      brouillon = (await res.json()).sdrs.slice();
+      info('');
+    } else {
+      const c = await res.json().catch(() => ({}));
+      brouillon = (data?.sdrs_config || data?.sdrs.map(s => s.id) || []).slice();
+      info(c.error || 'Liste distante illisible — édition sur la dernière collecte.', 'ko');
+    }
+  } catch (_) {
+    brouillon = (data?.sdrs_config || data?.sdrs.map(s => s.id) || []).slice();
+    info('Serveur injoignable — édition sur la dernière collecte.', 'ko');
+  }
+  dessiner();
+});
+
+document.getElementById('annuler').addEventListener('click', () => {
+  panneau.hidden = true;
+  info('');
+});
+
+btnEnr.addEventListener('click', async () => {
+  const avant = data?.genere_le;
+  btnEnr.disabled = true;
+  info('Enregistrement…');
+  try {
+    const res = await fetch('api/sdrs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sdrs: brouillon }),
+    });
+    const corps = await res.json().catch(() => ({}));
+
+    if (res.status === 202) {
+      panneau.hidden = true;
+      info('');
+      return attendre(avant);
+    }
+    if (res.status === 200) {
+      panneau.hidden = true;
+      info('');
+      etat('Liste inchangée', false);
+      setTimeout(() => etat('Rafraîchir', true), 3000);
+      return;
+    }
+    info(corps.error || `Échec (${res.status})`, 'ko');
+    if (corps.detail) console.error(corps.detail);
+  } catch (e) {
+    info('Serveur injoignable.', 'ko');
+    console.error(e);
+  } finally {
+    btnEnr.disabled = !brouillon.length;
+  }
+});
+
+// --- Rappel Allo (anti no-show) -------------------------------------------
+// Message fixe, envoyé côté serveur : le navigateur choisit juste un contact
+// parmi ceux qui ont une tâche "Rappel anti no show" ouverte pour le SDR affiché.
+
+const panneauRappel = document.getElementById('panneauRappel');
+const listeRappel = document.getElementById('listeRappel');
+const msgRappel = document.getElementById('msgRappel');
+const btnEnvoyerRappel = document.getElementById('envoyerRappel');
+
+function infoRappel(texte, type) {
+  msgRappel.textContent = texte || '';
+  msgRappel.className = 'note' + (type ? ' ' + type : '');
+}
+
+function dessinerRappel() {
+  const leads = data?.data[sel.value]?.contexte?.anti_no_show_leads || [];
+  if (!leads.length) {
+    listeRappel.innerHTML = '';
+    btnEnvoyerRappel.disabled = true;
+    return infoRappel('Aucun contact « Rappel anti no show » ouvert pour ce SDR.');
+  }
+  listeRappel.innerHTML = leads.map((l, i) => `<li>
+    <input type="radio" name="contactRappel" id="cr${i}" value="${l.number}" ${i === 0 ? 'checked' : ''}>
+    <label for="cr${i}">${l.name} ${l.last_name}${l.company ? ` · ${l.company}` : ''} — ${l.number}</label>
+  </li>`).join('');
+  btnEnvoyerRappel.disabled = false;
+  infoRappel('');
+}
+
+document.getElementById('ouvrirRappel').addEventListener('click', () => {
+  if (!panneauRappel.hidden) { panneauRappel.hidden = true; return; }
+  panneauRappel.hidden = false;
+  dessinerRappel();
+});
+
+document.getElementById('annulerRappel').addEventListener('click', () => {
+  panneauRappel.hidden = true;
+  infoRappel('');
+});
+
+btnEnvoyerRappel.addEventListener('click', async () => {
+  const choix = listeRappel.querySelector('input[name="contactRappel"]:checked');
+  if (!choix) return;
+  btnEnvoyerRappel.disabled = true;
+  infoRappel('Envoi…');
+  try {
+    const res = await fetch('api/allo-remind', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to: choix.value }),
+    });
+    const corps = await res.json().catch(() => ({}));
+    if (res.ok) {
+      infoRappel('Rappel envoyé ✓', 'ok');
+      setTimeout(() => { panneauRappel.hidden = true; infoRappel(''); }, 2000);
+      return;
+    }
+    infoRappel(corps.error || `Échec (${res.status})`, 'ko');
+    if (corps.detail) console.error(corps.detail);
+  } catch (e) {
+    infoRappel('Serveur injoignable.', 'ko');
+    console.error(e);
+  } finally {
+    btnEnvoyerRappel.disabled = false;
+  }
+});
+
+// --- Appeler avec Allo / Minari (push direct dans la queue ou la liste) ---
+// Pousse les leads déjà chargés (data.json) chez le power dialer choisi pour le
+// SDR affiché, puis ouvre l'app pour lancer les appels. Les clés API restent
+// côté serveur (api/allo-call.js, api/minari-call.js) ; le navigateur n'envoie
+// que les leads, l'email du SDR et — pour Minari — un libellé de liste.
+
+const PROVIDERS = {
+  allo: { endpoint: 'api/allo-call', app: 'https://web.withallo.com/' },
+  minari: { endpoint: 'api/minari-call', app: 'https://app.minari.ai/' },
+};
+
+document.getElementById('nrp').addEventListener('click', async (e) => {
+  const boutonAppel = e.target.closest('button.call');
+  if (!boutonAppel || boutonAppel.disabled) return;
+
+  const provider = PROVIDERS[boutonAppel.dataset.provider];
+  const stage = boutonAppel.dataset.stage;
+  const leads = leadsParEtape[stage] || [];
+  if (!provider || !leads.length) return;
+
+  const libelle = boutonAppel.textContent;
+  const sdr = data?.sdrs?.find(s => s.id === sel.value);
+  const email = sdr?.email || '';
+  const label = `Cockpit SDR — ${sdr?.name || ''} — ${stage} — ${new Date().toLocaleDateString('fr-FR')}`;
+  boutonAppel.disabled = true;
+  boutonAppel.textContent = 'Envoi…';
+  try {
+    const res = await fetch(provider.endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ leads, email, label }),
+    });
+    const corps = await res.json().catch(() => ({}));
+    if (res.ok) {
+      const ajoutes = corps.addedCount ?? corps.count;
+      boutonAppel.textContent = ajoutes ? `${ajoutes} ajouté${ajoutes > 1 ? 's' : ''} ✓` : 'Ajouté ✓';
+      // Deux cas où le SDR doit être prévenu avant de cliquer : des leads laissés
+      // de côté, ou une liste assignée à un autre compte que le sien.
+      const infos = [];
+      if (corps.ignores) infos.push(`${corps.ignores} lead(s) sans prénom, nom ni email : ignorés par Minari.`);
+      if (corps.assignedTo && corps.assignedTo.via && corps.assignedTo.via !== 'email') {
+        infos.push(`Liste assignée à ${corps.assignedTo.name} (${corps.assignedTo.email}) — aucun compte Minari ne porte l'email du SDR.`);
+      }
+      if (infos.length) alert(infos.join('\n'));
+      window.open(provider.app, '_blank', 'noopener');
+    } else {
+      boutonAppel.textContent = 'Échec';
+      console.error(corps.error || `Échec (${res.status})`, corps.detail || '');
+      alert(corps.error || `Échec (${res.status})`);
+    }
+  } catch (err) {
+    boutonAppel.textContent = 'Échec';
+    console.error(err);
+    alert('Serveur injoignable.');
+  } finally {
+    setTimeout(() => { boutonAppel.disabled = false; boutonAppel.textContent = libelle; }, 2500);
+  }
+});
+</script>
+</body>
+</html>

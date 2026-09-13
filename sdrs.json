@@ -1,0 +1,7 @@
+{
+  "_comment": "Liste des SDR affichés dans le menu déroulant. Ajouter une ligne = ajouter un SDR. Accepte un email HubSpot ou un owner ID numérique. L'ordre est celui du menu.",
+  "sdrs": [
+    "alex.martin@example.com",
+    "sam.dubois@example.com"
+  ]
+}

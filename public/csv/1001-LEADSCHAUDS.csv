@@ -1,0 +1,5 @@
+﻿number,name,last_name,company,job_title,emails,linkedin,company_linkedin,contexte,hubspot_url
++33600000001,Camille,Rousseau,Nova Systems,Chief Marketing Officer,camille.rousseau@example.com,linkedin.com/in/camille-rousseau-demo,,,https://app.hubspot.com/contacts/00000000/record/0-1/700000001
++33600000002,Julien,Perrot,Atlas Retail,Head of Sales,julien.perrot@example.com,,https://www.linkedin.com/company/atlas-retail-demo,Lancement produit Q3,https://app.hubspot.com/contacts/00000000/record/0-1/700000002
++33600000003,Nadia,Benali,Meridian Consulting,Operations Director,nadia.benali@example.com,linkedin.com/in/nadia-benali-demo,,Lancement produit Q3,https://app.hubspot.com/contacts/00000000/record/0-1/700000003
++33600000004,Thomas,Caron,Solaris Energy,Procurement Manager,thomas.caron@example.com,,,,https://app.hubspot.com/contacts/00000000/record/0-1/700000004
